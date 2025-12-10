@@ -1,8 +1,8 @@
-import { getRedirectResult, GoogleAuthProvider, signInWithRedirect, signInWithPopup } from 'firebase/auth';
-import { createContext, useContext, useState, useEffect } from 'react';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { auth, db, logout, onAuthChange, loginWithGoogle as firebaseLoginWithGoogle, getEtapas } from '../services/firebase';
-import { getEmpresas } from '../services/database'; // Removida a importação de 'deletarEmpresa'
-import { doc, updateDoc, runTransaction, collection, onSnapshot, query, where, getDoc, collectionGroup, deleteDoc, addDoc, setDoc } from 'firebase/firestore';
+import { getEmpresas } from '../services/database';
+import { doc, updateDoc, runTransaction, collection, onSnapshot, query, where, getDoc, collectionGroup, deleteDoc, addDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -36,6 +36,11 @@ export const AuthProvider = ({ children }) => {
     // Retorna a função de limpeza para o listener de autenticação.
     return () => unsubscribe();
   }, []); // Executa apenas uma vez na montagem
+
+  const selecionarEmpresa = useCallback((empresa) => {
+    setEmpresaAtual(empresa);
+    localStorage.setItem('empresaAtualId', empresa.id);
+  }, []);
 
   // Efeito 2: Reage à mudança de 'user' para buscar as empresas.
   useEffect(() => {
@@ -80,7 +85,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => unsubscribe();
-  }, [user]); // Re-executa sempre que o objeto 'user' mudar.
+  }, [user, selecionarEmpresa]); // Re-executa sempre que o objeto 'user' ou a função 'selecionarEmpresa' mudar.
 
   // Efeito para buscar o perfil do usuário na empresa atual
   useEffect(() => {
@@ -159,11 +164,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const selecionarEmpresa = (empresa) => {
-    setEmpresaAtual(empresa);
-    localStorage.setItem('empresaAtualId', empresa.id);
-  };
-
   const handleAtualizarEmpresa = async (empresaId, dados) => {
     if (!user) return;
     try {
@@ -185,10 +185,6 @@ export const AuthProvider = ({ children }) => {
 
   const deletarEmpresa = async (empresaId) => {
     if (!user) throw new Error("Usuário não autenticado.");
-    if (perfilUsuario?.perfil !== 'admin') {
-      throw new Error("Você não tem permissão para excluir esta empresa.");
-    }
-
     try {
       const empresaRef = doc(db, 'empresas', empresaId);
       await deleteDoc(empresaRef);
@@ -199,7 +195,7 @@ export const AuthProvider = ({ children }) => {
       }
       // O listener onSnapshot em `useEffect` cuidará de atualizar a lista de empresas.
     } catch (error) {
-      console.error("Erro ao deletar empresa:", error);
+      console.error("Erro ao deletar empresa:", error.code, error.message);
       // Verifica se o erro é de permissão e exibe uma mensagem mais clara
       if (error.code === 'permission-denied') {
         throw new Error("Permissão negada. Verifique suas regras de segurança do Firestore ou se você é um administrador.");
@@ -280,6 +276,9 @@ export const AuthProvider = ({ children }) => {
     if (!response.ok) {
       const errorBody = await response.json();
       console.error("Falha ao buscar dados da planilha:", errorBody);
+      if (response.status === 401) {
+        throw new Error('Token de acesso inválido ou expirado. Por favor, faça login novamente para obter um novo token.');
+      }
       if (response.status === 403) {
         throw new Error('Acesso negado aos dados da planilha. Verifique as permissões de compartilhamento.');
       }
@@ -290,7 +289,7 @@ export const AuthProvider = ({ children }) => {
     return data.values; // Retorna um array de arrays com os valores das células
   };
 
-  const atualizarDataRealEtapa = async (etapaId, dataReal) => {
+  const atualizarDataRealEtapa = useCallback(async (etapaId, dataReal) => {
     try {
       if (!empresaAtual?.id) {
         throw new Error("Nenhuma empresa selecionada para atualizar a etapa.");
@@ -305,9 +304,9 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Erro ao atualizar data real da etapa:", error);
     }
-  };
+  }, [empresaAtual]);
 
-  const criarEtapa = async (dadosEtapa) => {
+  const criarEtapa = useCallback(async (dadosEtapa) => {
     if (!user || !empresaAtual?.id) {
       throw new Error("Usuário não autenticado ou nenhuma empresa selecionada.");
     }
@@ -327,7 +326,8 @@ export const AuthProvider = ({ children }) => {
       console.error("Erro ao criar nova etapa:", error);
       throw error;
     }
-  };
+  }, [user, empresaAtual]);
+
   const value = {
     user,
     loading,
