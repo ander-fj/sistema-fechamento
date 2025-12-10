@@ -10,6 +10,7 @@ export default defineConfig({
   },
 
   build: {
+    outDir: '../dist',
     rollupOptions: {
       external: ['react-is'] // garante que o Vercel/Vite não trave no build
     }
