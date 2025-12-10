@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getPeriodos, getEtapas, getStatusColor as getStatusColorFromDB, getStatusLabel, atualizarEtapa } from '../services/database';
 import { format } from 'date-fns';
-import { X, Check, Share2, Clock, BarChart2 } from 'lucide-react';
+import { X, Check, Share2, BarChart2 } from 'lucide-react';
 import ReactFlow, { Controls, Background, MiniMap, useNodesState, useEdgesState } from 'reactflow';
 import {
   ResponsiveContainer,
@@ -41,9 +41,9 @@ export default function Fluxograma() {
   const [etapaSelecionada, setEtapaSelecionada] = useState(null);
   const [filtroStatus, setFiltroStatus] = useState('Todos');
   const [view, setView] = useState('timeline'); // 'fluxo' ou 'timeline'
-
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
 
   // Memoriza a função para evitar re-renderizações desnecessárias no useEffect que gera os nós.
   const getStatusColor = useCallback((status) => getStatusColorFromDB(status), []);
@@ -185,7 +185,7 @@ export default function Fluxograma() {
     setEdges(newEdges);
   }, [etapasFiltradas, getStatusColor, setNodes, setEdges, user]);
 
-
+  
   if (!empresaAtual) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
@@ -259,9 +259,7 @@ export default function Fluxograma() {
             <ReactFlow
               key={periodoSelecionado?.id || 'no-period'}
               nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
+              edges={edges}              
               fitView
               onNodeClick={(event, node) => setEtapaSelecionada(node.data.etapa)}
             >
