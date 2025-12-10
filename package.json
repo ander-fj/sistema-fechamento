@@ -1,0 +1,7 @@
+{
+	"dependencies": {
+		"@azure/msal-browser": "^4.27.0",
+		"@azure/msal-react": "^3.0.23",
+		"reactflow": "^11.11.4"
+	}
+}

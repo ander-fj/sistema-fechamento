@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regra para a coleção 'empresas'
+    match /empresas/{empresaId} {
+      // Permite a leitura de uma empresa se o usuário estiver autenticado e for membro dela.
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid));
+
+      // Permite a criação de uma empresa se o usuário estiver autenticado e for o criador.
+      allow create: if request.auth != null &&
+                    request.resource.data.criadoPor == request.auth.uid;
+
+      // Permite a atualização se o usuário for um administrador da empresa.
+      allow update: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)).data.perfil == 'admin';
+
+      // Permite a exclusão se o usuário for um administrador da empresa.
+      allow delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)).data.perfil == 'admin';
+
+      // Regras para a subcoleção 'usuarios'
+      match /usuarios/{usuarioId} {
+        // Permite a leitura dos dados dos usuários da empresa se o solicitante for membro da empresa.
+        allow read: if request.auth != null && exists(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid));
+
+        // Permite a criação (adicionar novo usuário) se:
+        // 1. A empresa está sendo criada, o usuário é o criador e está se adicionando como admin.
+        // 2. O solicitante já é um admin da empresa.
+        allow create: if request.auth != null &&
+                      (
+                        // Caso 1: Criador se auto-adicionando como admin na criação da empresa.
+                        // Verificamos se o documento da empresa ainda não existe (sinalizando uma transação de criação).
+                        // E garantimos que o usuário que está sendo criado é o solicitante e terá o perfil 'admin'.
+                        !exists(/databases/$(database)/documents/empresas/$(empresaId)) &&
+                        request.auth.uid == usuarioId &&
+                        request.resource.data.perfil == 'admin'
+                      ) || (
+                        // Caso 2: Um admin existente adicionando um novo usuário.
+                        // Verificamos se o solicitante tem o perfil 'admin' na empresa.
+                        exists(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)) &&
+                        get(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)).data.perfil == 'admin'
+                      );
+
+        // Permite a atualização se o solicitante for admin ou se o usuário estiver atualizando seus próprios dados.
+        allow update: if request.auth != null && (get(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)).data.perfil == 'admin' || request.auth.uid == usuarioId);
+
+        // Permite a exclusão se o solicitante for um admin.
+        allow delete: if request.auth != null && get(/databases/$(database)/documents/empresas/$(empresaId)/usuarios/$(request.auth.uid)).data.perfil == 'admin';
+      }
+    }
+  }
+}
