@@ -8,11 +8,35 @@ importers:
 
   .:
     dependencies:
+      '@azure/msal-browser':
+        specifier: ^4.27.0
+        version: 4.27.0
+      '@azure/msal-react':
+        specifier: ^3.0.23
+        version: 3.0.23(@azure/msal-browser@4.27.0)(react@19.2.1)
+      react-is:
+        specifier: ^19.2.1
+        version: 19.2.1
       reactflow:
         specifier: ^11.11.4
         version: 11.11.4(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
 
 packages:
+
+  '@azure/msal-browser@4.27.0':
+    resolution: {integrity: sha512-bZ8Pta6YAbdd0o0PEaL1/geBsPrLEnyY/RDWqvF1PP9RUH8EMLvUMGoZFYS6jSlUan6KZ9IMTLCnwpWWpQRK/w==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-common@15.13.3':
+    resolution: {integrity: sha512-shSDU7Ioecya+Aob5xliW9IGq1Ui8y4EVSdWGyI1Gbm4Vg61WpP95LuzcY214/wEjSn6w4PZYD4/iVldErHayQ==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-react@3.0.23':
+    resolution: {integrity: sha512-tHvq441nwlJD9QfQP4ZStiw6xb2hQoujNHZhZb+wpUbImb3wyr2FF6/umhX/p+yzc/aq0Lee7mbdDDpzRZzxcA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@azure/msal-browser': ^4.27.0
+      react: ^16.8.0 || ^17 || ^18 || ^19.2.1
 
   '@reactflow/background@11.3.14':
     resolution: {integrity: sha512-Gewd7blEVT5Lh6jqrvOgd4G6Qk17eGKQfsDXgyRSqM+CTwDqRldG2LsWN4sNeno6sbqVIC2fZ+rAUBFA9ZEUDA==}
@@ -192,6 +216,9 @@ packages:
     peerDependencies:
       react: ^19.2.1
 
+  react-is@19.2.1:
+    resolution: {integrity: sha512-L7BnWgRbMwzMAubQcS7sXdPdNLmKlucPlopgAzx7FtYbksWZgEWiuYM5x9T6UqS2Ne0rsgQTq5kY2SGqpzUkYA==}
+
   react@19.2.1:
     resolution: {integrity: sha512-DGrYcCWK7tvYMnWh79yrPHt+vdx9tY+1gPZa7nJQtO/p8bLTDaHp4dzwEhQB7pZ4Xe3ok4XKuEPrVuc+wlpkmw==}
     engines: {node: '>=0.10.0'}
@@ -226,6 +253,17 @@ packages:
         optional: true
 
 snapshots:
+
+  '@azure/msal-browser@4.27.0':
+    dependencies:
+      '@azure/msal-common': 15.13.3
+
+  '@azure/msal-common@15.13.3': {}
+
+  '@azure/msal-react@3.0.23(@azure/msal-browser@4.27.0)(react@19.2.1)':
+    dependencies:
+      '@azure/msal-browser': 4.27.0
+      react: 19.2.1
 
   '@reactflow/background@11.3.14(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
@@ -466,6 +504,8 @@ snapshots:
     dependencies:
       react: 19.2.1
       scheduler: 0.27.0
+
+  react-is@19.2.1: {}
 
   react@19.2.1: {}
 
