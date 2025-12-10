@@ -105,12 +105,12 @@ function PeriodosTab({ empresaId, periodos }) {
       alert(`O período ${mes}/${ano} já existe.`);
       return;
     }
+    
     setIsLoading(true);
     try {
       await criarPeriodo(empresaId, { mes, ano });
     } catch (error) {
       console.error("Erro ao criar período e importar etapas:", error);
-      alert("Erro ao importar etapas. Verifique os templates e tente novamente.");
     } finally {
       setIsLoading(false);
     }

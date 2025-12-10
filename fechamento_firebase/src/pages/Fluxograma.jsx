@@ -190,6 +190,7 @@ export default function Fluxograma() {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <p className="text-slate-500">Selecione uma empresa para visualizar o fluxograma</p>
+          </div>
     );
   }
 
