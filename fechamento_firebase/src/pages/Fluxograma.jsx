@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getPeriodos, getEtapas, getStatusColor as getStatusColorFromDB, getStatusLabel, atualizarEtapa } from '../services/database';
 import { format } from 'date-fns';
 import { X, Check, Share2, BarChart2 } from 'lucide-react';
-import ReactFlow, { Controls, Background, MiniMap, useNodesState, useEdgesState } from 'reactflow';
+import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
 import {
   ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell, Label, LabelList
@@ -35,7 +35,7 @@ const calcularAtraso = (etapa) => {
 
 export default function Fluxograma() {
   const { empresaAtual, user } = useAuth();
-  const [periodos, setPeriodos] = useState([]);
+  const [periodos, setPeriodos] = useState( []);
   const [periodoSelecionado, setPeriodoSelecionado] = useState(null);
   const [etapas, setEtapas] = useState([]);
   const [etapaSelecionada, setEtapaSelecionada] = useState(null);
@@ -44,7 +44,7 @@ export default function Fluxograma() {
   
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-
+  
   // Memoriza a função para evitar re-renderizações desnecessárias no useEffect que gera os nós.
   const getStatusColor = useCallback((status) => getStatusColorFromDB(status), []);
 
@@ -140,9 +140,9 @@ export default function Fluxograma() {
           return tooltip;
         })(),
         data: {
-          label: `D+${etapa.ordem}: ${etapa.nome}\n(${etapa.responsavel || 'Sem resp.'})`,
-          etapa: etapa,
-        },
+        label: `D+${etapa.ordem}: ${etapa.nome}\n(${etapa.responsavel || 'Sem resp.'})`,
+        etapa: etapa,
+      },
         style: {
           backgroundColor: statusColorMap[getStatusColor(etapa.status)] ?? '#64748b',
           color: 'white',
@@ -162,9 +162,9 @@ export default function Fluxograma() {
       };
     });
 
-    setNodes(newNodes);
+    setNodes( newNodes);
 
-    const newEdges = [];
+    const newEdges  = [];
     for (let i = 0; i < ordensUnicas.length - 1; i++) {
       const sourceEtapas = nodesByOrdem[ordensUnicas[i]] || [];
       const targetEtapas = nodesByOrdem[ordensUnicas[i + 1]] || [];
@@ -190,7 +190,6 @@ export default function Fluxograma() {
     return (
       <div className="flex flex-col items-center justify-center h-96">
         <p className="text-slate-500">Selecione uma empresa para visualizar o fluxograma</p>
-      </div>
     );
   }
 
@@ -248,15 +247,13 @@ export default function Fluxograma() {
         </div>
       </div>
 
-
-
       {/* Fluxograma */}
       <div className="bg-white rounded-xl shadow-sm h-[600px] w-full">
         {etapasFiltradas.length === 0 ? (
           <p className="text-slate-500 text-center py-12">Nenhuma etapa cadastrada para este período</p>
         ) : (
           view === 'fluxo' ? (
-            <ReactFlow
+           <ReactFlow
               key={periodoSelecionado?.id || 'no-period'}
               nodes={nodes}
               edges={edges}              
@@ -265,7 +262,7 @@ export default function Fluxograma() {
             >
               <MiniMap />
               <Controls />
-              <Background variant="dots" gap={12} size={1} />
+             <Background variant="dots" gap={12} size={1} />
             </ReactFlow>
           ) : (
             <GanttChart etapas={etapasFiltradas} periodoSelecionado={periodoSelecionado} />
@@ -351,7 +348,7 @@ function GanttChart({ etapas, periodoSelecionado }) {
   const minPeriodDate = useMemo(() => {
     if (!periodoSelecionado) return null;
     return new Date(periodoSelecionado.ano, periodoSelecionado.mes - 1, 1);
-  }, [periodoSelecionado]);
+  }, [periodoSelecionado ]);
   
   const ganttData = useMemo(() => {
     if (!etapas || etapas.length === 0 || !minPeriodDate) 
@@ -408,10 +405,10 @@ function GanttChart({ etapas, periodoSelecionado }) {
       ...rows.flatMap(r => r.tasks.map(t => t.startOffset + t.duration))
     , 30) + 3;
     
-    const ticks = Array.from({ length: Math.ceil(maxDays) }, (_, i) => i);
+    const ticks = Array.from({ length: Math.ceil(maxDays)  }, (_, i) => i);
 
     return { rows, domain: [0, maxDays], ticks };
-  }, [etapas, minPeriodDate]);
+  }, [etapas, minPeriodDate ]);
 
 
 
@@ -421,7 +418,7 @@ function GanttChart({ etapas, periodoSelecionado }) {
     const isHighlighted = taskName === 'Encerramento de pedidos de compra e venda no sistema';
 
     // Estilos para o texto destacado
-    const highlightedStyle = {
+    const highlightedStyle  = {
       fontSize: '14px',
       fontWeight: 'bold',
       textShadow: '0 0 5px rgba(0,0,0,0.7)',
