@@ -1,13 +1,6 @@
 {
-  "builds": [
-    {
-      "src": "fechamento_firebase/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "buildCommand": "cd fechamento_firebase && pnpm install && pnpm build",
+  "outputDirectory": "fechamento_firebase/dist",
   "routes": [
     {
       "src": "/[^.]+",
