@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "src": "fechamento_firebase/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ]
+}
