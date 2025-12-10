@@ -71,15 +71,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!empresaAtual?.id) return;
+
+    // Garante que o período selecionado seja limpo se não pertencer à empresa atual
+    if (periodoSelecionado && !periodos.find(p => p.id === periodoSelecionado.id)) {
+      setPeriodoSelecionado(null);
+    }
+
     const unsubscribe = getPeriodos(empresaAtual.id, (data) => {
       setPeriodos(data);
       // Se nenhum período estiver selecionado, seleciona o primeiro da lista.
-      if (data.length > 0 && !periodoSelecionado) {
+      if (data.length > 0 && !data.find(p => p.id === periodoSelecionado?.id)) {
         setPeriodoSelecionado(data[0]);
       }
     });
     return () => unsubscribe();
-  }, [empresaAtual, periodoSelecionado]); // Mantido para re-selecionar se o período for removido
+  }, [empresaAtual, periodos, periodoSelecionado]);
 
   useEffect(() => {
     if (!empresaAtual?.id || !periodoSelecionado) {

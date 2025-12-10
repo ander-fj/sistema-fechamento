@@ -38,6 +38,8 @@ export const AuthProvider = ({ children }) => {
   }, []); // Executa apenas uma vez na montagem
 
   const selecionarEmpresa = useCallback((empresa) => {
+    // Limpa a empresa atual primeiro para forçar um recarregamento nos componentes filhos
+    setEmpresaAtual(null); 
     setEmpresaAtual(empresa);
     localStorage.setItem('empresaAtualId', empresa.id);
   }, []);

@@ -55,17 +55,22 @@ export default function Fluxograma() {
       setPeriodoSelecionado(null);
       return;
     }
-
+    
+    // Garante que o período selecionado seja limpo se não pertencer à empresa atual
+    if (periodoSelecionado && !periodos.find(p => p.id === periodoSelecionado.id)) {
+      setPeriodoSelecionado(null);
+    }
+    
     const unsubscribe = getPeriodos(empresaAtual.id, (data) => {
       setPeriodos(data);
       // Automatically select the first period of a new company
-      if (data.length > 0 && !periodoSelecionado) {
+      if (data.length > 0 && !data.find(p => p.id === periodoSelecionado?.id)) {
         setPeriodoSelecionado(data[0]);
       }
     });
 
     return () => unsubscribe();
-  }, [empresaAtual, periodoSelecionado]);
+  }, [empresaAtual, periodos, periodoSelecionado]);
 
   // Fetch etapas when company or period changes
   useEffect(() => {
